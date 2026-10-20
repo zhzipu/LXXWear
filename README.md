@@ -1,33 +1,35 @@
-# LX-N-XW-Music
+# LXXWear
 
-独立的手表端工程，自带 Gradle 构建，不依赖、也不进入手机端仓库。
+LX 音乐手表端播放器（Wear OS / 安卓手表），通过局域网与手机端 [LX-N-X-Music](https://github.com/zhzipu/LX-N-X-Music) 自动同步歌单并离线播放。
 
-它是 `D:\pycode\lx-netease-music-mobile-main` 的**分支产物**：功能方向跟随手机端，但代码与构建完全独立，
-在 `D:\pycode\LX-N-XW-Music` 单独维护。
+<p align="center">
+  <img src="docs/images/player.png" width="180" alt="播放器"/>
+  &nbsp;&nbsp;
+  <img src="docs/images/lyrics.png" width="180" alt="歌词"/>
+  &nbsp;&nbsp;
+  <img src="docs/images/queue.png" width="180" alt="播放列表"/>
+  &nbsp;&nbsp;
+  <img src="docs/images/playlists.png" width="180" alt="歌单"/>
+  &nbsp;&nbsp;
+  <img src="docs/images/console.png" width="180" alt="控制台"/>
+</p>
 
 从 WearMusic（第三方网易云音乐手表客户端）中剥离出的最小可运行框架，**只保留界面、播放器、播放列表、歌词**四块，
 不再包含任何账号、接口、下载、导入等业务功能。
 
-## 保留的内容
+## 功能
 
-| 模块 | 文件 |
-| --- | --- |
-| 界面 | `ui/MainActivity`（横向四页 ViewPager2）、`ui/PlayListActivity`、`adapter/ViewPagerAdapter`、`adapter/MusicAdapter` |
-| 播放器 | `service/MusicPlayerService`（MediaPlayer + Binder + MediaSession）、`fragment/PlayerFragment`（封面 / 歌名 / 歌手 / 上下曲） |
-| 播放列表 | `fragment/QueueFragment`（当前队列页）、`player/PlaylistProvider`、`model/Song`、`res/layout/activity_playlist.xml`、`res/layout/item_song.xml` |
-| 歌单 | `fragment/SongListFragment`（手机同步下来的歌单，两层：歌单 → 歌） |
-| 歌词 | `fragment/LyricsFragment`（LrcView，支持拖动跳转） |
-| 局域网互联 | `lan/*`（发现 / HTTP 客户端 / 整单同步 / 本地曲库）、`ui/LanActivity` |
-
-页面布局：横向四列 **歌单 → 播放器 → 播放列表 → 控制台**，播放器在中间：
-往右滑是歌单（手机同步下来的分组），往左滑是播放列表（播放器当前这一队列，点一首立刻切歌并回到播放器），
-再往左是控制台（音量、播放模式、播放列表、局域网同步入口）。
-播放器列本身是上下两页：**上滑进歌词、下滑回播放器**（`widget/VerticalPagerLayout` + `fragment/PlayerPagerFragment`），
-歌词页整页是 LrcView，竖向拖动用来跳转歌词，所以下滑返回关掉，回播放器页点顶部时间栏。
+- **横向四列页面**：歌单 → 播放器 → 播放列表 → 控制台，播放器居中
+- **播放器**：封面 / 歌名 / 歌手 / 进度条与时长；点击封面在 **单曲循环 → 列表循环 → 列表随机 → 列表顺序** 间切换，时间栏提示 1 秒
+- **歌词**：播放器上滑进入，LrcView 竖向拖动跳转；点时间栏返回
+- **播放列表**：当前队列，正在播放的标题高亮蓝色，点一首立刻切歌
+- **系统媒体会话**：注册 `MediaSessionCompat`，手表系统控件与通知栏可播放 / 暂停 / 切歌
+- **记住播放**：每次切歌记录当前曲目，下次启动自动恢复到上次退出时播放的歌
+- **局域网自动同步**：与手机同一 Wi-Fi 自动对齐歌单，详见下文
 
 ## 播放列表数据
 
-应用启动时从 `app/src/main/assets/playlist.json` 读取，格式：
+应用启动时优先加载本地曲库（局域网同步产物），没有同步过才回退到 `app/src/main/assets/playlist.json`，格式：
 
 ```json
 [
@@ -51,16 +53,19 @@ PlaylistProvider.setSongs(mySongs); // 在播放器页创建之前调用
 
 ## 构建
 
-本工程独立构建，不参与手机端的构建流程：
+本工程独立构建，不依赖手机端仓库：
 
 ```bash
-cd D:/pycode/LX-N-XW-Music
-gradle assembleDebug            # 已验证 Gradle 8.10.2 + JDK 17
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+git clone https://github.com/zhzipu/LXXWear.git
+cd LXXWear
+gradle assembleRelease          # Gradle 8.x + JDK 17
+adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
-- `applicationId` 仍是 `cn.wearbbs.music`，可以和手机端 App 同时装在设备上。
+- `applicationId` 为 `com.lxnx.wear`。
 - 依赖 `me.wcy:lrcview:2.2` 只存在于已停服的 jcenter，根 `build.gradle` 里已用阿里云 jcenter 镜像替换。
+- 仓库不含签名文件（`keystore.properties` / `*.jks` 已被 `.gitignore` 排除），release 构建需自行配置签名；
+  无签名配置时会退化为 debug 签名，可直接安装。
 
 ## 局域网互联（自动对齐手机端选中的歌单）
 
@@ -79,14 +84,14 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 调用手表的 `/pair` 换取 token，双方绑定。配对后手表只接受带同一 token 的广播与请求，
 换手机在配对页「解除配对」即可。不配对也能用，但同网段多台设备时容易同步到别人的手机。
 
-手机端（`lx-netease-music-mobile`）侧边栏「设置」上方的 **LXXWear** 页负责配对：点「打开相机扫码」
+手机端侧边栏「设置」上方的 **LXXWear** 页负责配对：点「打开相机扫码」
 拍下手表屏幕上的二维码即可自动填好地址与配对码并完成配对（识别用 MLKit 离线模型，扫不出来时
 页面上也有手动填 IP / 端口 / 配对码的入口）。
 
 手动入口在**控制台页第三行的同步图标**：可以看到歌单名、本地曲目数与占用空间，也能强制重新检查、
 查看具体进度和错误。同步过程中手机上没有某首歌的文件时，由手机端先自行下载（`prepare` 轮询）再发出来。
 
-本地曲库在 `Android/data/cn.wearbbs.music/files/lan_library/`，`index.json` 记录歌单信息与版本；
+本地曲库在 `Android/data/com.lxnx.wear/files/lan_library/`，`index.json` 记录歌单信息与版本；
 应用启动时优先加载它，没有同步过才回退到 `assets/playlist.json`。
 
 完整接口、时序与自动同步策略见 **[docs/LAN_PROTOCOL.md](docs/LAN_PROTOCOL.md)**。
@@ -103,22 +108,22 @@ python tools/mock_server.py --media tools/mock/media
 它会在 `8686` 起 HTTP 服务、`8687` 每 2 秒发 UDP 广播；手表进同步页即可整单拉取。
 记得放行防火墙的 TCP 8686 与 UDP 8687，且电脑和手表在同一网段。
 
-手机端（`lx-netease-music-mobile`）目前还没有这套 HTTP 服务，需要按协议文档补上；
-`docs/LAN_PROTOCOL.md` 第 5 节写了 RN 侧的落地方案（静态文件服务 + `react-native-udp` 广播 + 缓存目录）。
+## 代码结构
 
-## 关键约定
+| 模块 | 文件 |
+| --- | --- |
+| 界面 | `ui/MainActivity`（横向四列 ViewPager2）、`adapter/ViewPagerAdapter`、`adapter/MusicAdapter` |
+| 播放器 | `service/MusicPlayerService`（MediaPlayer + Binder + MediaSessionCompat）、`fragment/PlayerFragment` |
+| 播放列表 | `fragment/QueueFragment`、`player/PlaylistProvider`、`model/Song` |
+| 播放顺序 | `player/PlayOrder`（四档轮换 + 持久化）、`player/PlaybackItem` |
+| 歌单 | `fragment/SongListFragment`（手机同步下来的歌单，两层：歌单 → 歌） |
+| 歌词 | `fragment/LyricsFragment`（LrcView，支持拖动跳转） |
+| 翻页手势 | `widget/VerticalPagerLayout` + `fragment/PlayerPagerFragment`（播放器上下两页） |
+| 局域网互联 | `lan/*`（发现 / HTTP 客户端 / 整单同步 / 本地曲库）、`ui/LanActivity`、`ui/PairActivity` |
 
-- `PlaylistProvider` 持有播放列表和当前索引，是唯一的数据来源。
-- `MusicPlayerService` 只做 MediaPlayer 的播放控制，播放列表通过 `startService` 的 `urls` / `index` 传入。
-- 页面之间用 `LocalBroadcastManager` + `PlayerActions` 通信：进度、选歌、切歌。
-- `PlayerFragment.binder` 是拿播放器控制权的入口，未连接时为 `null`。
-
-## 已删除的功能
-
-登录 / 扫码 / 账号信息、搜索与热搜、我的歌单、歌单详情、音乐云盘、私人 FM、本地音乐与 FTP 导入、
-评论与回复、MV 播放、下载、分享二维码、收藏、设置、关于、开源声明、更新检查、意见反馈、AppCenter 统计、
-以及 `cn.jackuxl` 下的整套网易云接口与数据模型。
+页面之间用 `LocalBroadcastManager` + `PlayerActions` 通信（进度、选歌、切歌、播放顺序）；
+`PlaylistProvider` 持有播放列表和当前索引，是唯一的数据来源。
 
 ## 许可证
 
-沿用原项目 AGPL-3.0，详见 [LICENSE](LICENSE)。
+沿用原项目 Apache-2.0，详见 [LICENSE](LICENSE)。
