@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.PairActivity">
+
+    <RelativeLayout
+        android:id="@+id/main_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:gravity="center_vertical"
+        android:padding="6dp">
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="12dp"
+            android:layout_height="19dp"
+            android:layout_marginStart="2dp"
+            android:contentDescription="@string/back"
+            android:rotation="-270"
+            android:src="@drawable/icon_extra" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/pair_title"
+            android:textColor="#FAFAFA"
+            android:textSize="12sp" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:text="@string/pair_tip"
+        android:textColor="?attr/colorPrimaryVariant"
+        android:textSize="10sp"
+        tools:ignore="TextContrastCheck" />
+
+    <ImageView
+        android:id="@+id/iv_qr"
+        android:layout_width="132dp"
+        android:layout_height="132dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="4dp"
+        android:background="#FFFFFF"
+        android:contentDescription="@string/pair_title"
+        android:padding="2dp"
+        android:scaleType="fitCenter" />
+
+    <TextView
+        android:id="@+id/tv_manual"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:textColor="#999999"
+        android:textSize="8sp"
+        tools:ignore="SmallSp" />
+
+    <Button
+        android:id="@+id/btn_unpair"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="4dp"
+        android:backgroundTint="?attr/colorPrimary"
+        android:minWidth="88dp"
+        android:text="@string/pair_unpair"
+        android:textColor="#FAFAFA"
+        android:textSize="9sp"
+        android:visibility="gone"
+        tools:ignore="SmallSp,TouchTargetSizeCheck" />
+
+</LinearLayout>

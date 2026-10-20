@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.LanActivity">
+
+    <RelativeLayout
+        android:id="@+id/main_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:gravity="center_vertical"
+        android:padding="6dp">
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="12dp"
+            android:layout_height="19dp"
+            android:layout_marginStart="2dp"
+            android:contentDescription="@string/back"
+            android:rotation="-270"
+            android:src="@drawable/icon_extra" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="@string/lan_connect"
+            android:textColor="#FAFAFA"
+            android:textSize="12sp" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="@string/lan_searching"
+        android:textColor="?attr/colorPrimaryVariant"
+        android:textSize="12sp"
+        tools:ignore="TextContrastCheck" />
+
+    <TextView
+        android:id="@+id/tv_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:maxLines="2"
+        android:textColor="#999999"
+        android:textSize="9sp"
+        tools:ignore="SmallSp" />
+
+    <ProgressBar
+        android:id="@+id/pb_sync"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="16dp"
+        android:indeterminateTint="?attr/colorPrimaryVariant"
+        android:max="100"
+        android:progressTint="?attr/colorPrimaryVariant"
+        android:progress="0" />
+
+    <TextView
+        android:id="@+id/tv_library"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:textColor="#999999"
+        android:textSize="9sp"
+        tools:ignore="SmallSp" />
+
+    <TextView
+        android:id="@+id/tv_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:gravity="center"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:text="@string/lan_background_tip"
+        android:textColor="#808080"
+        android:textSize="9sp"
+        tools:ignore="SmallSp" />
+
+    <Button
+        android:id="@+id/btn_action"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="?attr/colorPrimary"
+        android:minWidth="96dp"
+        android:text="@string/lan_stop"
+        android:textColor="#FAFAFA"
+        android:textSize="11sp"
+        tools:ignore="TouchTargetSizeCheck" />
+
+    <TextView
+        android:id="@+id/tv_pair"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="4dp"
+        android:padding="4dp"
+        android:text="@string/lan_pair_entry"
+        android:textColor="?attr/colorPrimaryVariant"
+        android:textSize="9sp"
+        tools:ignore="SmallSp" />
+
+</LinearLayout>

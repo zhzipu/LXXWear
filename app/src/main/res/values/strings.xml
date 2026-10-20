@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">LXXWear</string>
+    <string name="todo">todo</string>
+
+    <!-- 播放器 -->
+    <string name="play">播放</string>
+    <string name="pause">暂停</string>
+    <string name="previous">上一首</string>
+    <string name="next">下一首</string>
+    <string name="playList">播放列表</string>
+    <string name="untitled">未命名</string>
+    <string name="unknown">未知</string>
+    <string name="msg_noMusic">无音乐</string>
+    <string name="back">返回</string>
+    <string name="play_failed">播放失败</string>
+    <string name="play_unavailable">无法播放该音频</string>
+    <string name="notification_channel_playback">正在播放</string>
+    <!-- 封面下方进度条右端：当前时长 / 总时长 -->
+    <string name="song_time_placeholder">--:--/--:--</string>
+    <string name="song_time_format">%1$s/%2$s</string>
+
+    <!-- 播放顺序（点封面切换，时间栏闪 1 秒） -->
+    <string name="order_repeat_one">单曲循环</string>
+    <string name="order_repeat_all">列表循环</string>
+    <string name="order_shuffle">列表随机</string>
+    <string name="order_sequence">列表顺序</string>
+
+    <!-- 歌单页（播放器右滑） -->
+    <string name="song_list">歌单</string>
+    <string name="song_list_count">歌单 · %1$d 首</string>
+    <string name="song_list_empty">还没有歌单\n在手机上同步一次就会出现在这里</string>
+    <string name="playlist_group_count">歌单 · %1$d 个</string>
+    <string name="playlist_song_count">%1$d 首</string>
+    <string name="playlist_songs_header">‹ %1$s · %2$d 首</string>
+    <string name="playlist_songs_empty">这个歌单还没有同步到手表上\n点顶栏返回上一级</string>
+    <string name="song_list_local">本机歌单</string>
+
+    <!-- 播放列表页（播放器左滑）：当前播放队列 -->
+    <string name="queue_count">播放列表 · %1$d 首</string>
+    <string name="queue_empty">播放列表是空的\n在左边歌单里点一首歌就会出现</string>
+
+    <!-- 歌词 -->
+    <string name="loading_lyrics">加载中</string>
+    <string name="no_lyrics">暂无歌词</string>
+
+    <!-- 提示 -->
+    <string name="empty_playlist_tip">还没有歌\n在手机上同步一次就会出现在这里</string>
+    <string name="player_not_ready">播放器尚未就绪</string>
+    <string name="player_preparing_tip">正在连接播放器，马上开始播放</string>
+    <string name="lan_background_tip">同步在后台继续，退出这页也能先听已经传完的歌</string>
+    <string name="volume_max">已是最大音量</string>
+    <string name="volume_min">已是最小音量</string>
+    <string name="volume_tip_format">音量 %1$d/%2$d</string>
+
+    <!-- 局域网互联 -->
+    <string name="lan_connect">连接手机</string>
+    <string name="lan_searching">正在搜索手机…</string>
+    <string name="lan_same_wifi_tip">请确认手表和手机连的是同一个 Wi-Fi</string>
+    <string name="lan_stop">停止</string>
+    <string name="lan_retry">重新同步</string>
+    <string name="lan_done">进入播放器</string>
+    <string name="lan_open_player">看播放器</string>
+    <string name="lan_cancelled">已停止同步</string>
+    <string name="lan_finished_tip">歌单里的音频和歌词已全部存到手表</string>
+    <string name="lan_library_format">本地 %1$d 首 · %2$s</string>
+
+    <!-- 配对 -->
+    <string name="lan_pair_entry">配对手机</string>
+    <string name="lan_paired_format">已配对 %1$s</string>
+    <string name="pair_title">配对手机</string>
+    <string name="pair_tip">用手机扫描二维码完成配对</string>
+    <string name="pair_wifi_required">请先连接 Wi-Fi 再配对</string>
+    <string name="pair_server_failed">配对服务启动失败</string>
+    <string name="pair_qr_failed">二维码生成失败</string>
+    <string name="pair_success_format">已与 %1$s 配对</string>
+    <string name="pair_already_format">已配对：%1$s</string>
+    <string name="pair_unpair_tip">换手机请点下方解除配对</string>
+    <string name="pair_unpair">解除配对</string>
+
+</resources>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ll_lyrics"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".fragment.LyricsFragment">
+
+    <!-- 整页都是 LrcView：竖向拖动全部留给它做歌词跳转，
+         回播放器页靠点顶部时间栏（MainActivity.handleTitleClick）。 -->
+    <me.wcy.lrcview.LrcView
+        android:id="@+id/lv_main"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:lrcAnimationDuration="1000"
+        app:lrcCurrentTextColor="?attr/colorPrimaryVariant"
+        app:lrcDividerHeight="20dp"
+        app:lrcLabel="@string/loading_lyrics"
+        app:lrcNormalTextColor="#999999"
+        app:lrcNormalTextSize="12dp"
+        app:lrcPadding="16dp"
+        app:lrcTextGravity="center"
+        app:lrcTextSize="12dp"
+        app:lrcTimeTextColor="#999999"
+        app:lrcTimeTextSize="12dp"
+        app:lrcTimelineColor="#999999"
+        app:lrcTimelineTextColor="?attr/colorPrimaryVariant" />
+
+</LinearLayout>

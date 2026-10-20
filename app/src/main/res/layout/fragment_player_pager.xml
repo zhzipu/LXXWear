@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 播放器这一列：上面是播放器，手指上滑露出下面的歌词页 -->
+<cn.wearbbs.music.widget.VerticalPagerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/vp_player_pages"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/fl_player_page"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <FrameLayout
+        android:id="@+id/fl_lyrics_page"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</cn.wearbbs.music.widget.VerticalPagerLayout>
