@@ -37,17 +37,23 @@ import cn.wearbbs.music.player.PlaylistProvider;
 import cn.wearbbs.music.service.MusicPlayerService;
 import cn.wearbbs.music.ui.MainActivity;
 import cn.wearbbs.music.util.ToastUtil;
+import cn.wearbbs.music.widget.SingleLineLrcView;
 
 /**
- * 播放器页：封面、歌名、歌手、上一首 / 播放暂停 / 下一首。
+ * 播放器页：封面、歌名、歌手（播放中换成单行歌词）、上一首 / 播放暂停 / 下一首。
  */
 public class PlayerFragment extends Fragment {
 
     /** 供歌词页、控制台页复用，服务未连接时为 null。 */
     public static MusicPlayerService.MyBinder binder;
 
+    /** 歌词行刷新间隔：比 500ms 的进度刷新更密，换句的滚动才跟得住拍子。 */
+    private static final long LYRIC_TICK_MS = 100;
+
     private TextView tvName;
     private TextView tvAuthor;
+    /** 歌手那一行位置上的单行歌词，只在播放中显示。 */
+    private SingleLineLrcView lvInline;
     private ImageView ivCover;
     private ImageView ivStart;
     /** 本曲进度条（顶部那根 3dp 进度条已去掉，进度只看这里）。 */
@@ -116,6 +122,20 @@ public class PlayerFragment extends Fragment {
         }
     };
 
+    /**
+     * 歌手/歌词那一行的刷新。
+     * <p>
+     * 播放中把歌手换成单行歌词，并跟着播放位置换句；没在播（暂停、准备中、歌单空）
+     * 就收回歌词、显示歌手。走 100ms 的独立 ticker 是为了换句时机准，别等 500ms 的进度刷新。
+     */
+    private final Runnable lyricTicker = new Runnable() {
+        @Override
+        public void run() {
+            syncAuthorLine();
+            handler.postDelayed(this, LYRIC_TICK_MS);
+        }
+    };
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -124,6 +144,7 @@ public class PlayerFragment extends Fragment {
 
         tvName = view.findViewById(R.id.tv_name);
         tvAuthor = view.findViewById(R.id.tv_author);
+        lvInline = view.findViewById(R.id.lv_inline);
         ivCover = view.findViewById(R.id.iv_cover);
         ivStart = view.findViewById(R.id.iv_start);
         pbSong = view.findViewById(R.id.pb_song);
@@ -158,17 +179,20 @@ public class PlayerFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         handler.post(ticker);
+        handler.post(lyricTicker);
     }
 
     @Override
     public void onDestroyView() {
         handler.removeCallbacks(ticker);
+        handler.removeCallbacks(lyricTicker);
         LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(receiver);
         if (bound) {
             requireContext().unbindService(connection);
             bound = false;
         }
         binder = null;
+        lvInline = null;
         super.onDestroyView();
     }
 
@@ -231,6 +255,13 @@ public class PlayerFragment extends Fragment {
     private void showEmpty() {
         tvName.setText(R.string.msg_noMusic);
         tvAuthor.setText(R.string.unknown);
+        if (lvInline != null) {
+            lvInline.setLrc(null);
+            lvInline.setVisibility(View.GONE);
+        }
+        if (tvAuthor != null) {
+            tvAuthor.setVisibility(View.VISIBLE);
+        }
         if (ivCover != null) {
             ivCover.setImageResource(R.drawable.ic_baseline_photo_size_select_actual_24);
         }
@@ -319,6 +350,10 @@ public class PlayerFragment extends Fragment {
         }
         tvName.setText(TextUtils.isEmpty(song.getName()) ? getString(R.string.untitled) : song.getName());
         tvAuthor.setText(TextUtils.isEmpty(song.getArtist()) ? getString(R.string.unknown) : song.getArtist());
+        // 换歌了：歌词整段换掉，当前句从头对齐（下一次 tick 会按播放位置摆好）
+        if (lvInline != null) {
+            lvInline.setLrc(song.getLyric());
+        }
 
         RequestOptions options = RequestOptions.bitmapTransform(new RoundedCorners(15))
                 .placeholder(R.drawable.ic_baseline_photo_size_select_actual_24)
@@ -329,6 +364,34 @@ public class PlayerFragment extends Fragment {
         }
         // 换歌了：封面下那条进度先归零，别让新歌头 0.5 秒顶着上一首的进度
         resetSongProgress();
+    }
+
+    /**
+     * 歌手那一行：播放中且这首歌有歌词时换成单行歌词，跟着播放位置往上滚；
+     * 暂停、准备中、没有歌词、歌单空的时候收回去显示歌手。
+     */
+    private void syncAuthorLine() {
+        if (tvAuthor == null || lvInline == null) {
+            return;
+        }
+        boolean showLyric = binder != null && binder.isPrepared() && binder.isPlaying()
+                && lvInline.hasLyric();
+        if (!showLyric) {
+            if (lvInline.getVisibility() != View.GONE) {
+                lvInline.setVisibility(View.GONE);
+            }
+            if (tvAuthor.getVisibility() != View.VISIBLE) {
+                tvAuthor.setVisibility(View.VISIBLE);
+            }
+            return;
+        }
+        if (tvAuthor.getVisibility() != View.GONE) {
+            tvAuthor.setVisibility(View.GONE);
+        }
+        if (lvInline.getVisibility() != View.VISIBLE) {
+            lvInline.setVisibility(View.VISIBLE);
+        }
+        lvInline.updateTime(binder.getCurrentPosition());
     }
 
     /** 封面下那条进度条：还没准备时归零，时长还不知道就显示 --:--。 */

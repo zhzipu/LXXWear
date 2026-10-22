@@ -54,19 +54,35 @@
                     android:textSize="13sp"
                     tools:ignore="TextContrastCheck" />
 
-                <TextView
-                    android:id="@+id/tv_author"
+                <!-- 歌手这一行：不播放时显示歌手，播放中换成单行歌词（高度固定一行，切换不跳版） -->
+                <FrameLayout
+                    android:id="@+id/fl_author"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:ellipsize="end"
-                    android:gravity="center"
-                    android:maxLines="2"
-                    android:singleLine="false"
-                    android:text="@string/unknown"
-                    android:textColor="#999999"
-                    android:textSize="11sp"
-                    tools:ignore="SmallSp,TextContrastCheck" />
+                    android:layout_height="20dp"
+                    android:layout_marginTop="8dp">
+
+                    <TextView
+                        android:id="@+id/tv_author"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:maxLines="1"
+                        android:singleLine="true"
+                        android:text="@string/unknown"
+                        android:textColor="#999999"
+                        android:textSize="11sp"
+                        tools:ignore="SmallSp,TextContrastCheck" />
+
+                    <cn.wearbbs.music.widget.SingleLineLrcView
+                        android:id="@+id/lv_inline"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:textColor="?attr/colorPrimaryVariant"
+                        android:textSize="12sp"
+                        android:visibility="gone"
+                        tools:ignore="SmallSp" />
+                </FrameLayout>
             </LinearLayout>
         </LinearLayout>
 

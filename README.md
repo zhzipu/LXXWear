@@ -18,8 +18,8 @@ LX 音乐手表端播放器（Wear OS / 安卓手表），通过局域网与手�
 ## 功能
 
 - **横向四列页面**：歌单 → 播放器 → 播放列表 → 控制台，播放器居中
-- **播放器**：封面 / 歌名 / 歌手 / 进度条与时长；点击封面在 **单曲循环 → 列表循环 → 列表随机 → 列表顺序** 间切换，时间栏提示 1 秒
-- **歌词**：播放器上滑进入，LrcView 竖向拖动跳转；点时间栏返回
+- **播放器**：封面 / 歌名 / 歌手（播放中这一行换成单行歌词，从下往上滚）/ 进度条与时长；点击封面在 **单曲循环 → 列表循环 → 列表随机 → 列表顺序** 间切换，时间栏提示 1 秒
+- **歌词**：播放器上滑进入，LrcView 竖向拖动跳转；点时间栏返回；播放器页的歌手那一行在播放时显示当前一句（`widget/SingleLineLrcView`，只露一行，换句向上滚；一句超宽时从右向左滚一次并停在句尾）
 - **播放列表**：当前队列，正在播放的标题高亮蓝色，点一首立刻切歌
 - **系统媒体会话**：注册 `MediaSessionCompat`，手表系统控件与通知栏可播放 / 暂停 / 切歌
 - **记住播放**：每次切歌记录当前曲目，下次启动自动恢复到上次退出时播放的歌
@@ -115,7 +115,7 @@ python tools/mock_server.py --media tools/mock/media
 | 播放列表 | `fragment/QueueFragment`、`player/PlaylistProvider`、`model/Song` |
 | 播放顺序 | `player/PlayOrder`（四档轮换 + 持久化）、`player/PlaybackItem` |
 | 歌单 | `fragment/SongListFragment`（手机同步下来的歌单，两层：歌单 → 歌） |
-| 歌词 | `fragment/LyricsFragment`（LrcView，支持拖动跳转） |
+| 歌词 | `fragment/LyricsFragment`（LrcView，支持拖动跳转）、`widget/SingleLineLrcView`（播放器页的单行歌词） |
 | 翻页手势 | `widget/VerticalPagerLayout` + `fragment/PlayerPagerFragment`（播放器上下两页） |
 | 局域网互联 | `lan/*`（发现 / HTTP 客户端 / 整单同步 / 本地曲库）、`ui/LanActivity`、`ui/PairActivity` |
 

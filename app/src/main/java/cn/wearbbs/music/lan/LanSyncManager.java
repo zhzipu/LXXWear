@@ -42,6 +42,10 @@ public class LanSyncManager {
     /** 并发下载的线程数，和手机端的并行准备路数对齐 */
     private static final int SYNC_PARALLEL = 5;
 
+    /** 手机端歌词改过时重新取歌词的次数与间隔：它那边可能还在准备这一版 */
+    private static final int LYRIC_FETCH_RETRY = 3;
+    private static final long LYRIC_FETCH_RETRY_DELAY_MS = 700L;
+
     public enum Mode {
         /** 手动触发：即使版本相同也会校验一遍。 */
         FULL,
@@ -477,6 +481,36 @@ public class LanSyncManager {
         }
     }
 
+    /**
+     * 重新取一次歌词，取不到就隔一会儿再试。
+     *
+     * 手机端「歌词改了」是靠清单里的指纹通知过来的，等手表开始同步时手机端可能还在
+     * 重新准备这份歌词，这时请求会拿到 503（或者 404）—— 直接放弃的话这一轮就白跑了。
+     */
+    private String fetchLyricWithRetry(SyncShared s, String id) {
+        for (int attempt = 0; attempt < LYRIC_FETCH_RETRY; attempt++) {
+            if (cancelled) {
+                return null;
+            }
+            try {
+                String text = s.client.getTextOrNull(LanConstants.PATH_LYRIC + LanClient.encode(id));
+                if (text != null) {
+                    return text;
+                }
+            } catch (Exception ignored) {
+            }
+            if (attempt < LYRIC_FETCH_RETRY - 1) {
+                try {
+                    Thread.sleep(LYRIC_FETCH_RETRY_DELAY_MS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
     /** 一首歌：等手机端准备好 → 拉音频 → 补歌词封面 → 落盘入库 */
     private void syncOne(SyncShared s, JSONObject item, int position) {
         if (cancelled) {
@@ -531,10 +565,31 @@ public class LanSyncManager {
 
         JSONObject old = s.previous.get(id);
         String lyric = old == null ? null : old.optString("lyric", null);
-        if (lyric == null) {
-            try {
-                lyric = s.client.getTextOrNull(LanConstants.PATH_LYRIC + LanClient.encode(id));
-            } catch (Exception ignored) {
+        // 手机端调过这首歌的歌词（手动匹配 / 时间轴偏移）时会带一个版本指纹；
+        // 和本地索引记的对不上就重拉一份。没调过（指纹为空）或者老版本手机端不给这个字段，
+        // 两边都是空串，比较相等，沿用本地缓存、不重复传输。
+        String lyricRevision = item.optString("lyricRevision", "");
+        String oldLyricRevision = old == null ? "" : old.optString("lyricRevision", "");
+        boolean lyricStale = !lyricRevision.equals(oldLyricRevision);
+        boolean lyricRefreshed = false;
+        if (lyric == null || lyricStale) {
+            // 手机端有这首歌的调整版本（带指纹），或者本地这份已经过期：
+            // 都可能撞上「手机端还在重新准备」，取不到就隔一会儿再试几次。
+            // 手机端还没准备好时会回 503，不是 404，所以这里按「抛异常也重试」处理。
+            boolean retryable = lyricStale || !lyricRevision.isEmpty();
+            String fetched = null;
+            if (retryable) {
+                fetched = fetchLyricWithRetry(s, id);
+            } else {
+                try {
+                    fetched = s.client.getTextOrNull(LanConstants.PATH_LYRIC + LanClient.encode(id));
+                } catch (Exception ignored) {
+                }
+            }
+            // 全都失败就保留旧歌词，并且不写新指纹（下一轮同步会再试一次）
+            if (fetched != null) {
+                lyric = fetched;
+                lyricRefreshed = true;
             }
         }
 
@@ -561,6 +616,11 @@ public class LanSyncManager {
             }
             if (lyric != null) {
                 entry.put("lyric", lyric);
+            }
+            // 只有歌词确实是这一版指纹对应的内容时才记下来，否则下一轮才会重试；
+            // 记错了会让「手机端改了歌词但手表没拿到」永远卡住
+            if (!lyricRevision.isEmpty() && (lyricRefreshed || !lyricStale)) {
+                entry.put("lyricRevision", lyricRevision);
             }
         } catch (Exception ignored) {
         }
